@@ -1,0 +1,21 @@
+  </main>
+  <footer class="site">A la orden Veci · Tu tienda de barrio, a un toque 🧡</footer>
+
+  <nav class="bottom-nav" aria-label="Navegación">
+    <a href="/" class="<%= currentPath === '/' || currentPath.startsWith('/tiendas') ? 'active' : '' %>"><span class="ico">🏠</span>Tiendas</a>
+    <a href="/carrito" class="<%= currentPath === '/carrito' || currentPath === '/checkout' ? 'active' : '' %>">
+      <span class="ico">🛒</span>Carrito
+      <span class="badge" data-cart-count data-count="<%= cartCount %>"><%= cartCount || '' %></span>
+    </a>
+    <a href="/pedidos" class="<%= currentPath.startsWith('/pedidos') ? 'active' : '' %>"><span class="ico">🧾</span>Pedidos</a>
+    <a href="/tendero" class="<%= currentPath.startsWith('/tendero') ? 'active' : '' %>"><span class="ico">🏪</span>Tendero</a>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <% if (locals.withMap) { %>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <% } %>
+  <script src="/js/app.js"></script>
+  <% (locals.scripts || []).forEach(function (s) { %><script src="<%= s %>"></script><% }) %>
+</body>
+</html>

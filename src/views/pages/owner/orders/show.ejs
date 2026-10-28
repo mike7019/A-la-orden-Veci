@@ -1,0 +1,78 @@
+<% locals.scripts = ['/js/owner.js'] %>
+<%- include('../../../partials/head') %>
+<%
+  var next = { recibido: 'preparando', preparando: 'despachado', despachado: 'entregado' }[order.status];
+  var nextLabel = { preparando: 'Empezar a preparar', despachado: 'Marcar como despachado 🛵', entregado: 'Marcar como entregado ✔' }[next];
+%>
+<a href="/tendero/pedidos" class="small">‹ Pedidos</a>
+<div class="page-head" style="margin-top:8px">
+  <h1>Pedido #<%= order.code %></h1>
+  <span class="pill <%= order.status === 'entregado' ? 'pill-green' : order.status === 'cancelado' ? 'pill-red' : 'pill-orange' %>"><%= fmt.STATUS_LABELS[order.status] %></span>
+</div>
+<p class="small muted"><%= fmt.formatDate(order.created_at) %><%= order.distance_km ? ' · a ' + order.distance_km + ' km' : '' %></p>
+
+<div class="two-col">
+  <div>
+    <div class="card">
+      <h2>Productos para despachar</h2>
+      <% order.items.forEach(function (i) { %>
+        <label class="check" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0;margin:0">
+          <span style="display:flex;gap:10px;align-items:center"><input type="checkbox"> <strong><%= i.quantity %> ×</strong> <%= i.product_name %></span>
+          <span><%= fmt.formatMoney(i.line_total) %></span>
+        </label>
+      <% }) %>
+      <div class="totals" style="margin-top:10px">
+        <div><span>Subtotal</span><span><%= fmt.formatMoney(order.subtotal) %></span></div>
+        <div><span>Domicilio</span><span><%= fmt.formatMoney(order.delivery_fee) %></span></div>
+        <div class="grand"><span>Total a cobrar</span><span><%= fmt.formatMoney(order.total) %></span></div>
+      </div>
+      <% if (order.notes) { %><div class="alert alert-info" style="margin-top:12px">📝 <%= order.notes %></div><% } %>
+    </div>
+  </div>
+
+  <div class="sticky">
+    <div class="card">
+      <h2>Entrega</h2>
+      <p style="margin-bottom:4px"><strong><%= order.first_name %> <%= order.last_name %></strong></p>
+      <p style="margin-bottom:4px">📞 <a href="tel:<%= order.phone %>"><%= order.phone %></a></p>
+      <p style="margin-bottom:4px">🏠 <%= order.address %></p>
+      <% if (order.reference) { %><p class="small muted">Ref: <%= order.reference %></p><% } %>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn btn-whatsapp btn-sm" href="<%= customerLink %>" target="_blank" rel="noopener">WhatsApp al cliente</a>
+        <% if (order.customer_lat) { %>
+          <a class="btn btn-ghost btn-sm" href="https://www.google.com/maps/dir/?api=1&destination=<%= order.customer_lat %>,<%= order.customer_lng %>" target="_blank" rel="noopener">🗺️ Cómo llegar</a>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Pago</h2>
+      <p><%= fmt.PAYMENT_LABELS[order.payment_method] %> ·
+        <span class="pill <%= order.payment_status === 'pagado' ? 'pill-green' : 'pill-yellow' %>"><%= order.payment_status === 'pagado' ? 'Pagado' : 'Pendiente' %></span></p>
+      <form method="post" action="/tendero/pedidos/<%= order.id %>/pago?_method=PATCH">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="payment_status" value="<%= order.payment_status === 'pagado' ? 'pendiente' : 'pagado' %>">
+        <button class="btn btn-ghost btn-sm"><%= order.payment_status === 'pagado' ? 'Marcar como pendiente' : 'Confirmar pago recibido' %></button>
+      </form>
+    </div>
+
+    <% if (order.status !== 'cancelado' && order.status !== 'entregado') { %>
+    <div class="card">
+      <h2>Actualizar estado</h2>
+      <% if (next) { %>
+        <form method="post" action="/tendero/pedidos/<%= order.id %>/estado?_method=PATCH">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="status" value="<%= next %>">
+          <button class="btn btn-green btn-block"><%= nextLabel %></button>
+        </form>
+      <% } %>
+      <form method="post" action="/tendero/pedidos/<%= order.id %>/estado?_method=PATCH" data-confirm="¿Cancelar este pedido? Las unidades volverán al inventario." style="margin-top:10px">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="status" value="cancelado">
+        <button class="btn btn-ghost btn-block" style="color:var(--danger)">Cancelar pedido</button>
+      </form>
+    </div>
+    <% } %>
+  </div>
+</div>
+<%- include('../../../partials/foot') %>

@@ -1,0 +1,37 @@
+// Capitales de los 32 departamentos de Colombia: [ciudad, departamento, latitud, longitud]
+// Bogotá (capital de Cundinamarca) se carga aparte con las 3 tiendas originales de Chapinero.
+const CITIES = [
+  ['Leticia', 'Amazonas', 4.2153, -69.9406],
+  ['Medellín', 'Antioquia', 6.2442, -75.5812],
+  ['Arauca', 'Arauca', 7.0847, -70.7591],
+  ['Barranquilla', 'Atlántico', 10.9685, -74.7813],
+  ['Cartagena', 'Bolívar', 10.3910, -75.4794],
+  ['Tunja', 'Boyacá', 5.5353, -73.3678],
+  ['Manizales', 'Caldas', 5.0703, -75.5138],
+  ['Florencia', 'Caquetá', 1.6144, -75.6062],
+  ['Yopal', 'Casanare', 5.3378, -72.3959],
+  ['Popayán', 'Cauca', 2.4419, -76.6063],
+  ['Valledupar', 'Cesar', 10.4631, -73.2532],
+  ['Quibdó', 'Chocó', 5.6947, -76.6611],
+  ['Montería', 'Córdoba', 8.7479, -75.8814],
+  ['Inírida', 'Guainía', 3.8653, -67.9239],
+  ['San José del Guaviare', 'Guaviare', 2.5729, -72.6459],
+  ['Neiva', 'Huila', 2.9273, -75.2819],
+  ['Riohacha', 'La Guajira', 11.5444, -72.9072],
+  ['Santa Marta', 'Magdalena', 11.2408, -74.1990],
+  ['Villavicencio', 'Meta', 4.1420, -73.6266],
+  ['Pasto', 'Nariño', 1.2136, -77.2811],
+  ['Cúcuta', 'Norte de Santander', 7.8939, -72.5078],
+  ['Mocoa', 'Putumayo', 1.1478, -76.6472],
+  ['Armenia', 'Quindío', 4.5339, -75.6811],
+  ['Pereira', 'Risaralda', 4.8133, -75.6961],
+  ['San Andrés', 'San Andrés y Providencia', 12.5847, -81.7006],
+  ['Bucaramanga', 'Santander', 7.1193, -73.1227],
+  ['Sincelejo', 'Sucre', 9.3047, -75.3978],
+  ['Ibagué', 'Tolima', 4.4389, -75.2322],
+  ['Cali', 'Valle del Cauca', 3.4516, -76.5320],
+  ['Mitú', 'Vaupés', 1.2530, -70.2340],
+  ['Puerto Carreño', 'Vichada', 6.1890, -67.4859],
+];
+
+module.exports = { CITIES };

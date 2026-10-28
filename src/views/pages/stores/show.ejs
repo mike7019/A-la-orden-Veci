@@ -1,0 +1,91 @@
+<% locals.bodyClass = 'has-cart-bar' %>
+<%- include('../../partials/head') %>
+
+<div class="store-hero">
+  <%- include('../../partials/storeThumb', { store: store }) %>
+  <div style="min-width:0">
+    <h1 style="margin:0"><%= store.name %></h1>
+    <div class="small muted"><%= store.address %><%= store.neighborhood ? ' · ' + store.neighborhood : '' %></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+      <% if (!store.is_open) { %><span class="pill pill-red">Cerrada ahora</span><% } %>
+      <% if (eta) { %><span class="pill pill-green">🛵 ~<%= eta %> min · <%= distance.toFixed(1) %> km</span><% } %>
+      <span class="pill"><%= store.delivery_fee ? 'Domicilio ' + fmt.formatMoney(store.delivery_fee) : 'Domicilio gratis' %></span>
+      <% if (store.min_order) { %><span class="pill">Mínimo <%= fmt.formatMoney(store.min_order) %></span><% } %>
+    </div>
+  </div>
+</div>
+
+<% if (store.description) { %><p class="muted small"><%= store.description %></p><% } %>
+<% if (!store.is_open) { %><div class="alert alert-warn">Esta tienda está cerrada. Puedes ver el catálogo, pero no recibirá pedidos por ahora.</div><% } %>
+<% if (outOfRange) { %><div class="alert alert-warn">Esta tienda está a más de <%= radiusKm %> km de ti; el domicilio podría tardar más.</div><% } %>
+<% if (otherStoreInCart) { %><div class="alert alert-info">Tu carrito tiene productos de otra tienda. Si agregas algo aquí te preguntaremos si quieres reemplazarlo.</div><% } %>
+
+<div class="sticky-search">
+  <form class="searchbar" method="get" role="search" data-live-search>
+    <label class="sr-only" for="q">Buscar producto</label>
+    <input type="search" id="q" name="q" value="<%= q %>" placeholder="¿Qué necesitas? Ej: leche, arroz…" autocomplete="off">
+    <% if (category) { %><input type="hidden" name="categoria" value="<%= category %>"><% } %>
+    <button class="btn">Buscar</button>
+  </form>
+  <% if (categories.length > 1) { %>
+  <div class="chips">
+    <a class="chip <%= !category ? 'active' : '' %>" href="?<%= q ? 'q=' + encodeURIComponent(q) : '' %>">Todo</a>
+    <% categories.forEach(function (c) { %>
+      <a class="chip <%= c === category ? 'active' : '' %>" href="?categoria=<%= encodeURIComponent(c) %><%= q ? '&q=' + encodeURIComponent(q) : '' %>"><%= fmt.categoryEmoji(c) %> <%= c %></a>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+
+<% if (!products.length) { %>
+  <div class="empty">
+    <div class="big">🔎</div>
+    <p><%= q || category ? 'No encontramos productos con ese filtro.' : 'Esta tienda aún no tiene productos disponibles.' %></p>
+    <% if (q || category) { %><a class="btn btn-ghost" href="/tiendas/<%= store.id %>">Ver todo el catálogo</a><% } %>
+  </div>
+<% } else { %>
+  <div class="product-grid">
+    <% products.forEach(function (p) { var qty = inCart[p.id] || 0; %>
+      <article class="product" data-product="<%= p.id %>" data-stock="<%= p.stock %>">
+        <div class="img">
+          <% if (p.image) { %><img src="<%= p.image %>" alt="<%= p.name %>" loading="lazy"><% } else { %><%= fmt.categoryEmoji(p.category) %><% } %>
+        </div>
+        <div class="body">
+          <div class="name"><%= p.name %></div>
+          <div class="price"><%= fmt.formatMoney(p.price) %></div>
+          <div class="stock"><%= p.stock <= 5 ? '¡Quedan ' + p.stock + '!' : 'Disponible' %></div>
+          <div class="actions">
+            <% if (store.is_open) { %>
+            <form method="post" action="/carrito/agregar" class="<%= qty ? 'hidden' : '' %>" data-add-form>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="productId" value="<%= p.id %>">
+              <button class="btn btn-sm btn-block">Agregar</button>
+            </form>
+            <div class="qty <%= qty ? '' : 'hidden' %>" data-qty-control>
+              <button type="button" data-step="-1" aria-label="Quitar uno">−</button>
+              <span class="val" data-qty><%= qty %></span>
+              <button type="button" data-step="1" aria-label="Agregar uno">+</button>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+<% } %>
+
+<a href="/carrito" class="cart-bar <%= cartCount ? '' : 'hidden' %>" data-cart-bar>
+  <span>🛒 Ver carrito (<span data-cart-count-text><%= cartCount %></span>)</span>
+  <span>Continuar ›</span>
+</a>
+
+<dialog id="replace-dialog">
+  <h2>¿Empezar un carrito nuevo?</h2>
+  <p class="muted">Tu carrito tiene productos de otra tienda. Solo puedes pedir a una tienda a la vez.</p>
+  <div style="display:grid;gap:8px">
+    <button class="btn" data-confirm-replace>Sí, vaciar y agregar</button>
+    <button class="btn btn-ghost" data-cancel>Cancelar</button>
+  </div>
+</dialog>
+
+<%- include('../../partials/foot') %>

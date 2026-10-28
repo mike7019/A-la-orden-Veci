@@ -1,0 +1,47 @@
+<% locals.scripts = ['/js/owner.js'] %>
+<%- include('../../../partials/head') %>
+<%- include('../../../partials/ownerTabs') %>
+
+<div class="page-head">
+  <h1>Inventario</h1>
+  <a class="btn btn-sm" href="/tendero/productos/nuevo">+ Nuevo producto</a>
+</div>
+
+<form class="searchbar" method="get" role="search">
+  <label class="sr-only" for="q">Buscar en inventario</label>
+  <input type="search" id="q" name="q" value="<%= q %>" placeholder="Buscar en mi inventario">
+  <button class="btn btn-ghost">Buscar</button>
+</form>
+
+<% if (!products.length) { %>
+  <div class="empty">
+    <div class="big">📦</div>
+    <p><%= q ? 'No hay productos con ese nombre.' : 'Aún no tienes productos.' %></p>
+    <a class="btn" href="/tendero/productos/nuevo">Agregar producto</a>
+  </div>
+<% } %>
+
+<div class="inv-list">
+  <% products.forEach(function (p) { %>
+    <div class="inv-item <%= p.is_active ? '' : 'inactive' %>">
+      <div class="img"><% if (p.image) { %><img src="<%= p.image %>" alt="" loading="lazy"><% } else { %><%= fmt.categoryEmoji(p.category) %><% } %></div>
+      <div class="info">
+        <div class="name"><%= p.name %></div>
+        <div class="small muted"><%= p.category %> · <strong><%= fmt.formatMoney(p.price) %></strong></div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap">
+          <label class="small muted" for="stock-<%= p.id %>">Stock</label>
+          <input class="stock-input" type="number" id="stock-<%= p.id %>" min="0" value="<%= p.stock %>" inputmode="numeric" data-stock-input="<%= p.id %>">
+          <% if (!p.is_active) { %><span class="pill">Oculto</span><% } else if (p.stock === 0) { %><span class="pill pill-red">Agotado</span><% } else if (p.stock <= 5) { %><span class="pill pill-yellow">Poco</span><% } %>
+        </div>
+      </div>
+      <div class="tools">
+        <a class="btn btn-ghost btn-sm" href="/tendero/productos/<%= p.id %>/editar">Editar</a>
+        <form method="post" action="/tendero/productos/<%= p.id %>?_method=DELETE" data-confirm="¿Eliminar &quot;<%= p.name %>&quot;? Esta acción no se puede deshacer.">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn btn-sm btn-ghost" style="color:var(--danger)">Eliminar</button>
+        </form>
+      </div>
+    </div>
+  <% }) %>
+</div>
+<%- include('../../../partials/foot') %>

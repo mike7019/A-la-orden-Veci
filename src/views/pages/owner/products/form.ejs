@@ -1,0 +1,62 @@
+<% locals.scripts = ['/js/owner.js'] %>
+<%- include('../../../partials/head') %>
+<% var isEdit = Boolean(product.id); function err(f) { return errors[f] ? '<div class="error">' + errors[f] + '</div>' : ''; } %>
+<a href="/tendero/productos" class="small">‹ Volver al inventario</a>
+<h1 style="margin-top:8px"><%= title %></h1>
+
+<form method="post" enctype="multipart/form-data" novalidate
+      action="<%= isEdit ? '/tendero/productos/' + product.id + '?_method=PUT' : '/tendero/productos' %>" style="max-width:640px">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="card">
+    <div class="field <%= errors.image ? 'has-error' : '' %>">
+      <span class="label">Foto del producto</span>
+      <div class="photo-picker">
+        <div class="preview" data-photo-preview>
+          <% if (product.image) { %><img src="<%= product.image %>" alt=""><% } else { %>📷<% } %>
+        </div>
+        <div>
+          <input type="file" name="image" accept="image/jpeg,image/png,image/webp" capture="environment" data-photo-input>
+          <div class="hint">JPG, PNG o WEBP · máx. 3 MB. En el celular puedes tomarla con la cámara.</div>
+          <% if (isEdit && product.image) { %>
+            <label class="check small" style="margin-top:8px"><input type="checkbox" name="removeImage" value="1"> Quitar foto actual</label>
+          <% } %>
+        </div>
+      </div>
+      <%- err('image') %>
+    </div>
+
+    <div class="field <%= errors.name ? 'has-error' : '' %>">
+      <label for="name">Nombre</label>
+      <input type="text" id="name" name="name" value="<%= product.name || '' %>" placeholder="Leche entera 1 L" required>
+      <%- err('name') %>
+    </div>
+    <div class="field">
+      <label for="category">Categoría</label>
+      <select id="category" name="category">
+        <% categories.forEach(function (c) { %><option <%= product.category === c ? 'selected' : '' %>><%= c %></option><% }) %>
+      </select>
+    </div>
+    <div class="row-2">
+      <div class="field <%= errors.price ? 'has-error' : '' %>">
+        <label for="price">Precio</label>
+        <input type="number" id="price" name="price" value="<%= Number.isInteger(product.price) ? product.price : '' %>" min="0" step="50" inputmode="numeric" placeholder="4500" required>
+        <%- err('price') %>
+      </div>
+      <div class="field <%= errors.stock ? 'has-error' : '' %>">
+        <label for="stock">Unidades disponibles</label>
+        <input type="number" id="stock" name="stock" value="<%= Number.isInteger(product.stock) ? product.stock : '' %>" min="0" inputmode="numeric" placeholder="20" required>
+        <%- err('stock') %>
+      </div>
+    </div>
+    <div class="field">
+      <label for="description">Descripción <span class="muted">(opcional)</span></label>
+      <textarea id="description" name="description" placeholder="Marca, presentación, etc."><%= product.description || '' %></textarea>
+    </div>
+    <label class="check"><input type="checkbox" name="is_active" <%= product.is_active ? 'checked' : '' %>> Visible en el catálogo</label>
+  </div>
+  <div style="display:grid;gap:10px">
+    <button class="btn btn-block"><%= isEdit ? 'Guardar cambios' : 'Guardar producto' %></button>
+    <% if (!isEdit) { %><button class="btn btn-ghost btn-block" name="another" value="1">Guardar y agregar otro</button><% } %>
+  </div>
+</form>
+<%- include('../../../partials/foot') %>

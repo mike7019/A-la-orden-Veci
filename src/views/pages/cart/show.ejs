@@ -1,0 +1,63 @@
+<%- include('../../partials/head') %>
+
+<h1>Tu carrito</h1>
+
+<% if (!cart.lines.length) { %>
+  <div class="empty">
+    <div class="big">🛒</div>
+    <p>Tu carrito está vacío.</p>
+    <a class="btn" href="/">Ver tiendas cercanas</a>
+  </div>
+<% } else { %>
+  <% if (cart.adjusted) { %><div class="alert alert-warn">Ajustamos algunas cantidades según el inventario disponible.</div><% } %>
+  <div class="two-col">
+    <div class="card">
+      <div class="page-head" style="margin-bottom:4px">
+        <a href="/tiendas/<%= cart.store.id %>"><strong>🏪 <%= cart.store.name %></strong></a>
+        <a class="small" href="/tiendas/<%= cart.store.id %>">+ Agregar más</a>
+      </div>
+      <% cart.lines.forEach(function (l) { %>
+        <div class="line" data-line data-product="<%= l.product.id %>" data-stock="<%= l.product.stock %>" data-price="<%= l.product.price %>">
+          <div class="img"><% if (l.product.image) { %><img src="<%= l.product.image %>" alt=""><% } else { %><%= fmt.categoryEmoji(l.product.category) %><% } %></div>
+          <div class="info">
+            <div class="name"><%= l.product.name %></div>
+            <div class="small muted"><%= fmt.formatMoney(l.product.price) %> c/u</div>
+          </div>
+          <div class="right">
+            <strong data-line-total><%= fmt.formatMoney(l.lineTotal) %></strong>
+            <form method="post" action="/carrito/actualizar" data-qty-form>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="productId" value="<%= l.product.id %>">
+              <div class="qty" data-qty-control>
+                <button type="submit" name="quantity" value="<%= l.quantity - 1 %>" data-step="-1" aria-label="Quitar uno">−</button>
+                <span class="val" data-qty><%= l.quantity %></span>
+                <button type="submit" name="quantity" value="<%= l.quantity + 1 %>" data-step="1" aria-label="Agregar uno">+</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="card sticky">
+      <div class="totals">
+        <div><span>Subtotal</span><span data-subtotal><%= fmt.formatMoney(cart.subtotal) %></span></div>
+        <div><span>Domicilio</span><span data-delivery><%= cart.deliveryFee ? fmt.formatMoney(cart.deliveryFee) : 'Gratis' %></span></div>
+        <div class="grand"><span>Total</span><span data-total><%= fmt.formatMoney(cart.total) %></span></div>
+      </div>
+      <% if (cart.store.min_order && cart.subtotal < cart.store.min_order) { %>
+        <div class="alert alert-warn" style="margin-top:12px">El pedido mínimo de esta tienda es <%= fmt.formatMoney(cart.store.min_order) %>.</div>
+      <% } %>
+      <% if (!cart.store.is_open) { %>
+        <div class="alert alert-warn" style="margin-top:12px">La tienda está cerrada en este momento.</div>
+      <% } %>
+      <a class="btn btn-green btn-block" style="margin-top:14px" href="/checkout">Continuar con la entrega</a>
+      <form method="post" action="/carrito/vaciar" class="center" style="margin-top:12px">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn-link small">Vaciar carrito</button>
+      </form>
+    </div>
+  </div>
+<% } %>
+
+<%- include('../../partials/foot') %>

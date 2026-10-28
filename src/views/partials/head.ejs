@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e8590c">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title><%= title ? title + ' · ' : '' %>A la orden Veci</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <% if (locals.withMap) { %>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <% } %>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="<%= locals.bodyClass || '' %>">
+  <header class="topbar">
+    <div class="container">
+      <a class="logo" href="<%= isOwner && currentPath.startsWith('/tendero') ? '/tendero' : '/' %>">
+        <span class="logo-mark">🏪</span><span>A la orden Veci</span>
+      </a>
+      <span class="spacer"></span>
+      <% if (!currentPath.startsWith('/tendero')) { %>
+        <button type="button" class="loc-chip" data-action="locate" aria-label="Actualizar mi ubicación">
+          📍 <span><%= location ? 'Mi ubicación' : 'Ubicarme' %></span>
+        </button>
+      <% } %>
+      <nav class="desktop-nav" aria-label="Principal">
+        <a href="/" class="<%= currentPath === '/' || currentPath.startsWith('/tiendas') ? 'active' : '' %>">Tiendas</a>
+        <a href="/carrito" class="<%= currentPath === '/carrito' ? 'active' : '' %>">Carrito <span class="badge" data-cart-count data-count="<%= cartCount %>"><%= cartCount || '' %></span></a>
+        <a href="/pedidos" class="<%= currentPath.startsWith('/pedidos') ? 'active' : '' %>">Mis pedidos</a>
+        <a href="/tendero" class="<%= currentPath.startsWith('/tendero') ? 'active' : '' %>">Soy tendero</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container">
+    <%- include('flash') %>

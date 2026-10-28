@@ -1,0 +1,76 @@
+<%- include('../partials/head') %>
+
+<% if (!stores) { %>
+  <section class="hero">
+    <h1>Tu tienda de barrio, a un toque</h1>
+    <p>Pide a las tiendas que están a menos de <%= radiusKm %> km de ti y recibe tu domicilio en minutos.</p>
+    <button class="btn btn-block" data-action="locate" data-redirect="1">📍 Ver tiendas cerca de mí</button>
+    <p class="small hidden" data-locate-status style="margin-top:10px"></p>
+  </section>
+
+  <div class="steps">
+    <div class="step"><span class="n">1</span><div><strong>Elige la tienda</strong><div class="small muted">Te mostramos las más cercanas primero.</div></div></div>
+    <div class="step"><span class="n">2</span><div><strong>Llena tu carrito</strong><div class="small muted">Busca y agrega lo que necesitas.</div></div></div>
+    <div class="step"><span class="n">3</span><div><strong>Recibe en minutos</strong><div class="small muted">La tienda recibe tu pedido por WhatsApp.</div></div></div>
+  </div>
+
+  <div class="card">
+    <h2>¿Tienes una tienda?</h2>
+    <p class="muted">Sube tu inventario y recibe pedidos de tus vecinos.</p>
+    <a class="btn btn-ghost btn-block" href="/tendero/registro">Registrar mi tienda</a>
+  </div>
+<% } else { %>
+  <div class="page-head">
+    <div>
+      <h1>Tiendas cerca de ti</h1>
+      <div class="small muted">A menos de <%= radiusKm %> km · ordenadas por cercanía</div>
+    </div>
+  </div>
+
+  <form class="searchbar" action="/tiendas" method="get" role="search">
+    <label class="sr-only" for="q">Buscar tienda o producto</label>
+    <input type="search" id="q" name="q" value="<%= q %>" placeholder="Busca tienda, barrio o producto">
+    <button class="btn">Buscar</button>
+  </form>
+
+  <% if (!stores.length) { %>
+    <div class="empty">
+      <div class="big">🏘️</div>
+      <% if (q) { %>
+        <p>No encontramos tiendas con "<strong><%= q %></strong>" cerca de ti.</p>
+        <a class="btn btn-ghost" href="/tiendas">Ver todas</a>
+      <% } else { %>
+        <p>Aún no hay tiendas registradas a menos de <%= radiusKm %> km de tu ubicación.</p>
+        <button class="btn btn-ghost" data-action="locate">Actualizar ubicación</button>
+      <% } %>
+    </div>
+  <% } else { %>
+    <div class="store-list">
+      <% stores.forEach(function (s) { %>
+        <a class="store-card <%= s.is_open ? '' : 'closed' %>" href="/tiendas/<%= s.id %>">
+          <%- include('../partials/storeThumb', { store: s }) %>
+          <div class="info">
+            <h3><%= s.name %></h3>
+            <div class="small muted"><%= s.neighborhood || s.address %></div>
+            <div class="meta">
+              <% if (s.is_open) { %>
+                <span class="pill pill-green">🛵 ~<%= s.eta %> min</span>
+              <% } else { %>
+                <span class="pill pill-red">Cerrada</span>
+              <% } %>
+              <span class="pill"><%= Number(s.distance_km).toFixed(1) %> km</span>
+              <span class="pill"><%= s.delivery_fee ? 'Domicilio ' + fmt.formatMoney(s.delivery_fee) : 'Domicilio gratis' %></span>
+            </div>
+          </div>
+          <span class="chev">›</span>
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+  <form method="post" action="/ubicacion/borrar" class="center" style="margin-top:18px">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button class="btn-link small">Cambiar ubicación</button>
+  </form>
+<% } %>
+
+<%- include('../partials/foot') %>

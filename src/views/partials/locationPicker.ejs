@@ -1,0 +1,11 @@
+<%# Selector de ubicación con mapa (Leaflet + OpenStreetMap). Requiere withMap: true en head. %>
+<div class="field <%= errors.location ? 'has-error' : '' %>">
+  <span class="label">Ubicación de la tienda</span>
+  <p class="small muted">Toca el mapa o arrastra el pin hasta tu tienda. Con esto te mostramos a los clientes que están a menos de <%= radiusKm %> km.</p>
+  <button type="button" class="btn btn-ghost btn-sm" data-map-locate style="margin-bottom:8px">📍 Usar mi ubicación actual</button>
+  <div id="map" data-lat="<%= lat || '' %>" data-lng="<%= lng || '' %>"></div>
+  <input type="hidden" name="latitude" id="latitude" value="<%= lat || '' %>">
+  <input type="hidden" name="longitude" id="longitude" value="<%= lng || '' %>">
+  <div class="hint" data-coords-label><%= lat ? 'Ubicación marcada ✓' : 'Aún no has marcado la ubicación' %></div>
+  <% if (errors.location) { %><div class="error"><%= errors.location %></div><% } %>
+</div>

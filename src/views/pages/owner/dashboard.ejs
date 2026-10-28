@@ -1,0 +1,41 @@
+<% locals.scripts = ['/js/owner.js'] %>
+<%- include('../../partials/head') %>
+<%- include('../../partials/ownerTabs') %>
+
+<div class="stats">
+  <div class="stat"><div class="v"><%= stats.pending %></div><div class="l">Pedidos por despachar</div></div>
+  <div class="stat"><div class="v"><%= stats.today %></div><div class="l">Pedidos hoy</div></div>
+  <div class="stat"><div class="v"><%= fmt.formatMoney(stats.sales_today) %></div><div class="l">Ventas hoy</div></div>
+  <div class="stat"><div class="v"><%= inventory.total %></div><div class="l">Productos</div></div>
+</div>
+
+<% if (inventory.total === 0) { %>
+  <div class="alert alert-info">Tu catálogo está vacío. <a href="/tendero/productos/nuevo">Agrega tu primer producto</a> para que los vecinos puedan pedirte.</div>
+<% } else if (inventory.out_of_stock || inventory.low_stock) { %>
+  <div class="alert alert-warn">
+    <%= inventory.out_of_stock %> producto(s) agotado(s) y <%= inventory.low_stock %> con poco inventario.
+    <a href="/tendero/productos">Revisar inventario</a>
+  </div>
+<% } %>
+
+<div class="card">
+  <div class="page-head"><h2 style="margin:0">Tienda <%= myStore.is_open ? 'abierta' : 'cerrada' %></h2>
+    <form method="post" action="/tendero/tienda/abrir">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-sm <%= myStore.is_open ? 'btn-ghost' : 'btn-green' %>"><%= myStore.is_open ? 'Cerrar tienda' : 'Abrir tienda' %></button>
+    </form>
+  </div>
+  <p class="small muted" style="margin:0"><%= myStore.is_open ? 'Los clientes cercanos pueden hacerte pedidos.' : 'No recibirás pedidos hasta que abras.' %></p>
+</div>
+
+<div class="page-head"><h2 style="margin:0">Últimos pedidos</h2><a href="/tendero/pedidos" class="small">Ver todos</a></div>
+<% if (!recent.length) { %>
+  <div class="empty"><div class="big">📦</div><p>Aquí verás los pedidos que te hagan.</p></div>
+<% } %>
+<% recent.forEach(function (o) { %><%- include('../../partials/orderRow', { o: o }) %><% }) %>
+
+<div style="display:grid;gap:10px;margin-top:16px">
+  <a class="btn" href="/tendero/productos/nuevo">+ Agregar producto</a>
+  <a class="btn btn-ghost" href="/tiendas/<%= myStore.id %>">Ver mi tienda como cliente</a>
+</div>
+<%- include('../../partials/foot') %>

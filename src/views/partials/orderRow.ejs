@@ -1,0 +1,10 @@
+<a class="order-row" href="/tendero/pedidos/<%= o.id %>">
+  <div>
+    <div class="code">#<%= o.code %> · <%= o.first_name %> <%= o.last_name %></div>
+    <div class="small muted"><%= fmt.formatDate(o.created_at) %> · <%= o.item_count %> und · <%= fmt.PAYMENT_LABELS[o.payment_method] %></div>
+  </div>
+  <div style="text-align:right">
+    <div><strong><%= fmt.formatMoney(o.total) %></strong></div>
+    <span class="pill <%= o.status === 'entregado' ? 'pill-green' : o.status === 'cancelado' ? 'pill-red' : o.status === 'recibido' ? 'pill-yellow' : 'pill-orange' %>"><%= fmt.STATUS_LABELS[o.status] %></span>
+  </div>
+</a>

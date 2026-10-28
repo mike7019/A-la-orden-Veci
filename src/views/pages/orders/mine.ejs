@@ -1,0 +1,23 @@
+<%- include('../../partials/head') %>
+<h1>Mis pedidos</h1>
+<% if (!orders.length) { %>
+  <div class="empty">
+    <div class="big">🧾</div>
+    <p>Aún no has hecho pedidos desde este dispositivo.</p>
+    <a class="btn" href="/">Pedir ahora</a>
+  </div>
+<% } else { %>
+  <% orders.forEach(function (o) { %>
+    <a class="order-row" href="/pedidos/<%= o.code %>">
+      <div>
+        <div class="code">#<%= o.code %> · <%= o.store_name %></div>
+        <div class="small muted"><%= fmt.formatDate(o.created_at) %></div>
+      </div>
+      <div style="text-align:right">
+        <div><strong><%= fmt.formatMoney(o.total) %></strong></div>
+        <span class="pill <%= o.status === 'entregado' ? 'pill-green' : o.status === 'cancelado' ? 'pill-red' : 'pill-orange' %>"><%= fmt.STATUS_LABELS[o.status] %></span>
+      </div>
+    </a>
+  <% }) %>
+<% } %>
+<%- include('../../partials/foot') %>

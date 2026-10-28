@@ -1,0 +1,17 @@
+<div class="page-head">
+  <div>
+    <div class="small muted">Panel del tendero</div>
+    <strong><%= myStore.name %></strong>
+    <span class="pill <%= myStore.is_open ? 'pill-green' : 'pill-red' %>"><%= myStore.is_open ? 'Abierta' : 'Cerrada' %></span>
+  </div>
+  <form method="post" action="/tendero/salir">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button class="btn btn-ghost btn-sm">Salir</button>
+  </form>
+</div>
+<nav class="owner-tabs" aria-label="Panel">
+  <a href="/tendero" class="<%= currentPath === '/tendero' ? 'active' : '' %>">Resumen</a>
+  <a href="/tendero/pedidos" class="<%= currentPath.startsWith('/tendero/pedidos') ? 'active' : '' %>">Pedidos <span class="badge" data-pending-count data-count="0"></span></a>
+  <a href="/tendero/productos" class="<%= currentPath.startsWith('/tendero/productos') ? 'active' : '' %>">Inventario</a>
+  <a href="/tendero/tienda" class="<%= currentPath.startsWith('/tendero/tienda') ? 'active' : '' %>">Mi tienda</a>
+</nav>

@@ -1,0 +1,77 @@
+<% locals.withMap = true; locals.scripts = ['/js/owner.js'] %>
+<%- include('../../partials/head') %>
+<%- include('../../partials/ownerTabs') %>
+<% function err(f) { return errors[f] ? '<div class="error">' + errors[f] + '</div>' : ''; } %>
+<h1>Datos de la tienda</h1>
+<form method="post" action="/tendero/tienda?_method=PUT" enctype="multipart/form-data" novalidate style="max-width:680px">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="card">
+    <div class="field <%= errors.logo ? 'has-error' : '' %>">
+      <span class="label">Logo o foto de la fachada</span>
+      <div class="photo-picker">
+        <div class="preview" data-photo-preview><% if (values.logo) { %><img src="<%= values.logo %>" alt=""><% } else { %>🏪<% } %></div>
+        <input type="file" name="logo" accept="image/jpeg,image/png,image/webp" data-photo-input>
+      </div>
+      <%- err('logo') %>
+    </div>
+    <div class="field <%= errors.name ? 'has-error' : '' %>">
+      <label for="name">Nombre</label>
+      <input type="text" id="name" name="name" value="<%= values.name %>" required>
+      <%- err('name') %>
+    </div>
+    <div class="field">
+      <label for="description">Descripción</label>
+      <textarea id="description" name="description" placeholder="Horario, especialidades…"><%= values.description || '' %></textarea>
+    </div>
+    <div class="row-2">
+      <div class="field <%= errors.address ? 'has-error' : '' %>">
+        <label for="address">Dirección</label>
+        <input type="text" id="address" name="address" value="<%= values.address %>" required>
+        <%- err('address') %>
+      </div>
+      <div class="field">
+        <label for="neighborhood">Barrio</label>
+        <input type="text" id="neighborhood" name="neighborhood" value="<%= values.neighborhood || '' %>">
+      </div>
+    </div>
+    <div class="field <%= errors.whatsapp ? 'has-error' : '' %>">
+      <label for="whatsapp">WhatsApp para recibir pedidos</label>
+      <input type="tel" id="whatsapp" name="whatsapp" value="<%= values.whatsapp %>" inputmode="tel" required>
+      <div class="hint">Con indicativo del país, ej. 573001234567</div>
+      <%- err('whatsapp') %>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label for="delivery_fee">Valor del domicilio</label>
+        <input type="number" id="delivery_fee" name="delivery_fee" value="<%= values.delivery_fee %>" min="0" step="100" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="min_order">Pedido mínimo</label>
+        <input type="number" id="min_order" name="min_order" value="<%= values.min_order %>" min="0" step="100" inputmode="numeric">
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" name="is_open" <%= values.is_open ? 'checked' : '' %>> Tienda abierta (recibiendo pedidos)</label>
+  </div>
+
+  <div class="card">
+    <h2>Métodos de pago</h2>
+    <% if (errors.payments) { %><div class="alert alert-error"><%= errors.payments %></div><% } %>
+    <label class="check"><input type="checkbox" name="accepts_card" <%= values.accepts_card ? 'checked' : '' %>> 💳 Acepto tarjeta (datáfono al entregar)</label>
+    <div class="field">
+      <label for="bank_info">🏦 Datos para transferencia</label>
+      <textarea id="bank_info" name="bank_info" placeholder="Nequi 300 123 4567 a nombre de Rosa Pérez"><%= values.bank_info || '' %></textarea>
+      <div class="hint">Déjalo vacío si no recibes transferencias</div>
+    </div>
+    <div class="field">
+      <label for="crypto_wallet">🪙 Billetera de criptomonedas</label>
+      <textarea id="crypto_wallet" name="crypto_wallet" placeholder="USDT (red TRC20): T..."><%= values.crypto_wallet || '' %></textarea>
+      <div class="hint">Indica la moneda y la red. Déjalo vacío si no recibes cripto.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <%- include('../../partials/locationPicker', { lat: values.latitude, lng: values.longitude }) %>
+  </div>
+  <button class="btn btn-block">Guardar cambios</button>
+</form>
+<%- include('../../partials/foot') %>

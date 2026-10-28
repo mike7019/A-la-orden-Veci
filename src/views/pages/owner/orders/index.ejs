@@ -1,0 +1,13 @@
+<% locals.scripts = ['/js/owner.js'] %>
+<%- include('../../../partials/head') %>
+<%- include('../../../partials/ownerTabs') %>
+<h1>Pedidos</h1>
+<div class="chips">
+  <a class="chip <%= !status ? 'active' : '' %>" href="/tendero/pedidos">Todos</a>
+  <% statuses.forEach(function (s) { %>
+    <a class="chip <%= status === s ? 'active' : '' %>" href="?estado=<%= s %>"><%= fmt.STATUS_LABELS[s] %></a>
+  <% }) %>
+</div>
+<% if (!orders.length) { %><div class="empty"><div class="big">📦</div><p>No hay pedidos<%= status ? ' en este estado' : '' %>.</p></div><% } %>
+<% orders.forEach(function (o) { %><%- include('../../../partials/orderRow', { o: o }) %><% }) %>
+<%- include('../../../partials/foot') %>

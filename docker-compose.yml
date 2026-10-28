@@ -1,0 +1,21 @@
+# Levanta PostgreSQL y la app: docker compose up
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: alaordenveci
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+  app:
+    build: .
+    depends_on: [db]
+    ports: ["3000:3000"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/alaordenveci
+    volumes: [uploads:/app/src/public/uploads]
+volumes:
+  pgdata:
+  uploads:

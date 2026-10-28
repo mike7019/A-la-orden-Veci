@@ -1,0 +1,61 @@
+<%- include('../../partials/head') %>
+<%
+  var steps = ['recibido', 'preparando', 'despachado', 'entregado'];
+  var idx = steps.indexOf(order.status);
+%>
+
+<div class="card center">
+  <div class="success-icon"><%= order.status === 'cancelado' ? '✖' : '✔' %></div>
+  <h1><%= order.status === 'cancelado' ? 'Pedido cancelado' : (order.status === 'entregado' ? '¡Pedido entregado!' : '¡Pedido recibido!') %></h1>
+  <p class="muted">Pedido <strong>#<%= order.code %></strong> en <strong><%= order.store_name %></strong></p>
+
+  <% if (wa && order.status !== 'cancelado') { %>
+    <% if (wa.status === 'enviado') { %>
+      <div class="alert alert-success">La tienda ya recibió tu pedido por WhatsApp.</div>
+    <% } else { %>
+      <div class="alert alert-info">Último paso: envía el pedido a la tienda por WhatsApp para que lo despache.</div>
+      <a class="btn btn-whatsapp btn-block" href="<%= wa.link %>" target="_blank" rel="noopener">Enviar pedido por WhatsApp</a>
+    <% } %>
+  <% } %>
+</div>
+
+<% if (order.status !== 'cancelado') { %>
+<div class="card">
+  <h2>Estado</h2>
+  <ul class="timeline">
+    <% steps.forEach(function (s, i) { %>
+      <li class="<%= i < idx ? 'done' : (i === idx ? 'current done' : '') %>">
+        <span class="dot"><%= i <= idx ? '✓' : '' %></span><%= fmt.STATUS_LABELS[s] %>
+      </li>
+    <% }) %>
+  </ul>
+  <a class="btn btn-ghost btn-sm" href="/pedidos/<%= order.code %>" style="margin-top:8px">↻ Actualizar estado</a>
+</div>
+<% } %>
+
+<% if (order.payment_method !== 'tarjeta' && order.payment_method !== 'efectivo' && order.payment_status !== 'pagado' && order.status !== 'cancelado') { %>
+<div class="card">
+  <h2>Datos para el pago</h2>
+  <div class="pay-detail"><%= order.payment_method === 'transferencia' ? order.bank_info : order.crypto_wallet %></div>
+  <p class="small muted" style="margin-top:8px">Paga <strong><%= fmt.formatMoney(order.total) %></strong> y envía el comprobante por WhatsApp a la tienda.</p>
+</div>
+<% } %>
+
+<div class="card">
+  <h2>Detalle</h2>
+  <% order.items.forEach(function (i) { %>
+    <div class="totals"><div><span><%= i.quantity %> × <%= i.product_name %></span><span><%= fmt.formatMoney(i.line_total) %></span></div></div>
+  <% }) %>
+  <div class="totals" style="margin-top:8px">
+    <div><span>Domicilio</span><span><%= order.delivery_fee ? fmt.formatMoney(order.delivery_fee) : 'Gratis' %></span></div>
+    <div class="grand"><span>Total</span><span><%= fmt.formatMoney(order.total) %></span></div>
+  </div>
+  <p class="small muted" style="margin-top:10px">
+    Pago: <%= fmt.PAYMENT_LABELS[order.payment_method] %> (<%= order.payment_status %>)<br>
+    <% if (isMine) { %>Entrega: <%= order.address %><%= order.reference ? ' · ' + order.reference : '' %><br><% } %>
+    <%= fmt.formatDate(order.created_at) %>
+  </p>
+  <a class="btn btn-whatsapp btn-sm" href="https://wa.me/<%= order.store_whatsapp %>" target="_blank" rel="noopener">Escribir a la tienda</a>
+</div>
+
+<%- include('../../partials/foot') %>
